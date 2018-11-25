@@ -1,3 +1,8 @@
+from os import mkdir
+
+from os.path import join, isdir
+
+import base64
 import json
 
 from brix.devices import load_devices
@@ -15,6 +20,8 @@ data = {}
 
 devs = load_devices()
 
+minutes = {}
+
 for row in reader:
     if row[0] == 'id':
         continue
@@ -23,8 +30,10 @@ for row in reader:
     if rid in BLACKLIST:
         continue
 
+    hid = int(row[TSV_COLUMNS['id']])
     device_id = int(row[TSV_COLUMNS['device_id']])
     timestamp = int(row[TSV_COLUMNS['timestamp']])
+    frame_content = row[TSV_COLUMNS['frame_content']]
 
     if device_id in devices:
         nr = devices.get(device_id)
@@ -36,21 +45,42 @@ for row in reader:
     plot = data.get(nr, {
         'x': [],
         'y': [],
+        'hit': [],
         'type': 'scatter',
         'mode': 'markers',
         'name': devs.get(device_id).get('device_model')
     })
 
-    plot.get('x').append(timestamp)
-    plot.get('y').append(1)
+    plot['x'].append(timestamp)
+    plot['y'].append(1 + nr * 0.025)
+    plot['hit'].append(hid)
     data[nr] = plot
 
-#devs = load_devices(set(devices.keys()))
-#for d in range(1, len(devices) + 1):
-#    device_id = rdevices[d]
-#    json_data.get('devices')[d] = devs.get(device_id)
+    minute = timestamp // 60000
+    minutes[minute] = minutes.get(minute, 0) + 1
 
-plots = []
+    if not isdir(PNG):
+        mkdir(PNG)
+    f = open(join(PNG, '%d.png' % hid), 'wb')
+    f.write(base64.b64decode(frame_content))
+    f.close()
+
+
+plot_minutes = {
+    'x': [],
+    'y': [],
+    'type': 'scatter',
+    'mode': 'markers',
+    'name': 'In minute'
+}
+
+for m in minutes.keys():
+    v = minutes.get(m)
+    if v > 1:
+        plot_minutes['x'].append(m * 60000 + 30000)
+        plot_minutes['y'].append(v)
+
+plots = [plot_minutes]
 for d in range(1, len(devices) + 1):
     plots.append(data[d])
 

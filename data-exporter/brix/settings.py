@@ -5,6 +5,7 @@ CSV = 'credo-data-export/credocut.tsv'
 PLOT = 'credo-data-export/credocut.plot'
 JSON = 'credo-data-export/credocut.json'
 DEVICES = 'credo-data-export/device_mapping.json'
+PNG = 'credo-data-export/png'
 CREDOCUT = 10069
 
 DELIMITER='\t'
