@@ -3,6 +3,7 @@ import csv
 DIR = 'credo-data-export/detections'
 CSV = 'credo-data-export/credocut.tsv'
 PLOT = 'credo-data-export/credocut.plot'
+JSON = 'credo-data-export/credocut.json'
 DEVICES = 'credo-data-export/device_mapping.json'
 CREDOCUT = 10069
 
